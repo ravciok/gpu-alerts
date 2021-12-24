@@ -102,18 +102,19 @@ const sourceData = [
 ];
 
 
-// cron.schedule('*/5 * * * *', function () {
-Promise.all(sourceData.map((shop, index) => {
-  return new Promise(async resolve => {
-    {
+cron.schedule('*/5 * * * *', async () => {
+  const targetData = [];
+
+  for (const [index, shop] of sourceData.entries()) {
+    await new Promise(async resolve => {
       const browser = await puppeteer.launch({
-        'args': ['--no-sandbox']
+        headless: true,
+        args: ['--no-sandbox']
       });
       const page = await browser.newPage();
-      await page.goto(shop.url, {waitUntil: 'load', timeout: 0});
+      await page.goto(shop.url, {waitUntil: 'networkidle0', timeout: 0});
 
-      const data = await page.evaluate((shop) => {
-
+      const data = await page.$$eval(shop.selectors.list, (list, shop) => {
         function completePrice(el) {
           let priceAsString = (el || {innerText: ''}).innerText
             .replace(/\n/g, ',')
@@ -123,26 +124,25 @@ Promise.all(sourceData.map((shop, index) => {
           return priceAsString * 1;
         }
 
-        return Object.values(document.querySelectorAll(shop.selectors.list)).map(el => {
+        return list.map(el => {
           return {
             name: (el.querySelector(shop.selectors.name) || {innerText: ''}).innerText.replace(/[\t\n]/g, ''),
             url: (el.querySelector(shop.selectors.url) || {href: ''}).href,
             shop: shop.name,
             price: completePrice(el.querySelector(shop.selectors.price)),
-          };
-        })
-          .filter((el) => el.price !== 0);
-      }, shop);
-
-      await browser.close();
+          }
+        }).filter(el => el.price !== 0);
+      }, shop).catch(() => []);
 
       console.log(`${index + 1}/${sourceData.length} - ${shop.name}`);
 
-      resolve(data);
-    }
-  })
-})).then(res => {
-  const data = res.flat().sort((a, b) => a.price - b.price);
+      await browser.close();
+
+      await resolve(data);
+    }).then((data) => targetData.push(data));
+  }
+
+  const data = targetData.flat().sort((a, b) => a.price - b.price);
   const createdAt = new Date();
 
   console.log('updated: ', createdAt);
@@ -152,8 +152,6 @@ Promise.all(sourceData.map((shop, index) => {
     data
   }));
 });
-// });
-
 
 app.use(express.static(__dirname + '/../public'))
 
@@ -164,3 +162,4 @@ app.get('/', function (req, res) {
 app.listen(port);
 
 console.log('Server started at http://localhost:' + port);
+
