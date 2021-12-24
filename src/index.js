@@ -2,6 +2,13 @@
 
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const cron = require('node-cron');
+const path = require('path');
+const express = require('express');
+
+
+const app = express();
+const port = process.env.PORT || 8080;
 
 const sourceData = [
   {
@@ -94,10 +101,14 @@ const sourceData = [
   }
 ];
 
+
+// cron.schedule('*/5 * * * *', function () {
 Promise.all(sourceData.map((shop, index) => {
   return new Promise(async resolve => {
     {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({
+        'args': ['--no-sandbox']
+      });
       const page = await browser.newPage();
       await page.goto(shop.url, {waitUntil: 'load', timeout: 0});
 
@@ -130,13 +141,26 @@ Promise.all(sourceData.map((shop, index) => {
       resolve(data);
     }
   })
-})).then(data => {
-  const sortedData = data.flat().sort((a, b) => a.price - b.price);
+})).then(res => {
+  const data = res.flat().sort((a, b) => a.price - b.price);
+  const createdAt = new Date();
 
-  console.log(sortedData);
+  console.log('updated: ', createdAt);
 
   fs.writeFileSync(__dirname + '/../public/data.json', JSON.stringify({
-    createdAt: new Date(),
-    data: sortedData
+    createdAt,
+    data
   }));
-})
+});
+// });
+
+
+app.use(express.static(__dirname + '/../public'))
+
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(port);
+
+console.log('Server started at http://localhost:' + port);
