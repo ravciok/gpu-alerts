@@ -1,16 +1,4 @@
-'use strict';
-
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const cron = require('node-cron');
-const path = require('path');
-const express = require('express');
-
-
-const app = express();
-const port = process.env.PORT || 8080;
-
-const sourceData = [
+const cardsConfig = [
   {
     name: 'Morele',
     type: 'morele',
@@ -98,68 +86,29 @@ const sourceData = [
       url: 'a.title',
       price: '.price__part'
     }
+  },
+  {
+    name: 'PC Projekt',
+    type: 'pcprojekt',
+    url: 'https://www.pcprojekt.pl/szukaj?controller=search&orderby=position&orderway=desc&search_query=rtx+3080&submit_search=',
+    selectors: {
+      list: '.product_list > li',
+      name: 'a.product-name',
+      url: 'a.product-name',
+      price: '.content_price'
+    }
+  },
+  {
+    name: 'Fox Komputer',
+    type: 'fox',
+    url: 'https://foxkomputer.pl/pl/c/Karty-graficzne/53/1/default/1/f_at_489_2273/1/f_at_489_2335/1',
+    selectors: {
+      list: '.products > .product',
+      name: 'a.prodname',
+      url: 'a.prodname',
+      price: '.price'
+    }
   }
 ];
 
-
-cron.schedule('*/5 * * * *', async () => {
-  const targetData = [];
-
-  for (const [index, shop] of sourceData.entries()) {
-    await new Promise(async resolve => {
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox']
-      });
-      const page = await browser.newPage();
-      await page.goto(shop.url, {waitUntil: 'networkidle0', timeout: 0});
-
-      const data = await page.$$eval(shop.selectors.list, (list, shop) => {
-        function completePrice(el) {
-          let priceAsString = (el || {innerText: ''}).innerText
-            .replace(/\n/g, ',')
-            .replace(/,\t|,zł|zł|\s/g, '')
-            .replace(/,/g, '.');
-
-          return priceAsString * 1;
-        }
-
-        return list.map(el => {
-          return {
-            name: (el.querySelector(shop.selectors.name) || {innerText: ''}).innerText.replace(/[\t\n]/g, ''),
-            url: (el.querySelector(shop.selectors.url) || {href: ''}).href,
-            shop: shop.name,
-            price: completePrice(el.querySelector(shop.selectors.price)),
-          }
-        }).filter(el => el.price !== 0);
-      }, shop).catch(() => []);
-
-      console.log(`${index + 1}/${sourceData.length} - ${shop.name}`);
-
-      await browser.close();
-
-      await resolve(data);
-    }).then((data) => targetData.push(data));
-  }
-
-  const data = targetData.flat().sort((a, b) => a.price - b.price);
-  const createdAt = new Date();
-
-  console.log('updated: ', createdAt);
-
-  fs.writeFileSync(__dirname + '/../public/data.json', JSON.stringify({
-    createdAt,
-    data
-  }));
-});
-
-app.use(express.static(__dirname + '/../public'))
-
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(port);
-
-console.log('Server started at http://localhost:' + port);
-
+module.exports = cardsConfig;
