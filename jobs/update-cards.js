@@ -4,14 +4,15 @@ const Card = require("../DB/Card");
 const updateCards = async (sourceData) => {
   await Card.deleteMany();
 
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox']
+  });
+  const page = await browser.newPage();
+
   for (const [index, shop] of sourceData.entries()) {
     await new Promise(async resolve => {
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox']
-      });
-      const page = await browser.newPage();
-      await page.goto(shop.url, {waitUntil: 'networkidle0', timeout: 0});
+      await page.goto(shop.url, {waitUntil: 'load', timeout: 0}).catch(() => resolve());
 
       const data = await page.$$eval(shop.selectors.list, (list, shop) => {
         const createdAt = new Date().getTime();
@@ -34,11 +35,10 @@ const updateCards = async (sourceData) => {
             createdAt
           }
         }).filter(el => el.price !== 0);
-      }, shop);
+      }, shop).catch(() => []);
 
-      console.log(`${index + 1}/${sourceData.length} - ${shop.name}`);
+      console.log(`${index + 1}/${sourceData.length} - ${shop.name} - ${!!data.length}`);
 
-      await browser.close();
       await Card.insertMany(data, null, (err, res) => {
         if (err) {
           console.log('err: ', err);
@@ -48,6 +48,8 @@ const updateCards = async (sourceData) => {
       });
     });
   }
+
+  await browser.close();
 
   console.log('updated: ', new Date().toLocaleString('pl-PL'));
 }
