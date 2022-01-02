@@ -2,7 +2,7 @@ const cardsConfig = [
   {
     name: 'Morele',
     type: 'morele',
-    url: 'https://www.morele.net/kategoria/karty-graficzne-12/,,,,,,,p,0,,,,8143O1689340.1827334/1/',
+    url: 'https://www.morele.net/kategoria/karty-graficzne-12/?q=rtx3080',
     selectors: {
       list: '.cat-list-products .cat-product',
       name: '.cat-product-name .productLink',
@@ -13,7 +13,7 @@ const cardsConfig = [
   {
     name: 'X-Kom',
     type: 'xkom',
-    url: 'https://www.x-kom.pl/szukaj?per_page=90&sort_by=accuracy_desc&q=rtx%203080&f%5Bgroups%5D%5B5%5D=1&f%5Bcategories%5D%5B345%5D=1',
+    url: 'https://www.x-kom.pl/szukaj?sort_by=accuracy_desc&q=rtx%203080&f%5Bgroups%5D%5B5%5D=1&f%5Bcategories%5D%5B345%5D=1',
     selectors: {
       list: '.sc-162ysh3-1',
       name: '.sc-1h16fat-0 h3',
@@ -90,7 +90,7 @@ const cardsConfig = [
   {
     name: 'PC Projekt',
     type: 'pcprojekt',
-    url: 'https://www.pcprojekt.pl/szukaj?controller=search&orderby=position&orderway=desc&search_query=rtx+3080&submit_search=',
+    url: 'https://www.pcprojekt.pl/szukaj?controller=search&orderby=position&orderway=desc&search_query=rtx+3080',
     selectors: {
       list: '.product_list > li',
       name: 'a.product-name',
@@ -102,6 +102,39 @@ const cardsConfig = [
     name: 'Fox Komputer',
     type: 'fox',
     url: 'https://foxkomputer.pl/pl/c/Karty-graficzne/53/1/default/1/f_at_489_2273/1/f_at_489_2335/1',
+    selectors: {
+      list: '.products > .product',
+      name: 'a.prodname',
+      url: 'a.prodname',
+      price: '.price'
+    }
+  },
+  {
+    name: 'KR System',
+    type: 'kr-system',
+    url: 'https://www.krsystem.pl/index.php?szukaj=rtx+3080&kat=0&go=szukanie#his,go=search&szukaj=rtx+3080&kat=0&dostepne=1&cena_z_1=&cena_z_2=&prodsort=&wyswietl=100&page=1&tryb=ajax&promocje=&pckonfig=&t=0.7401384908843927',
+    selectors: {
+      list: '#prodlist > .rows > .product-med',
+      name: 'h2.prodmed-h2',
+      url: '.cena > a',
+      price: '.cena > a'
+    }
+  },
+  {
+    name: 'KomTek24',
+    type: 'komtek24',
+    url: 'https://komtek24.pl/komputery/podzespoly-komputerowe/karty-graficzne/1/default/3/f_at_17179_33575/1/f_at_17145_33445/1/f_at_17141_33632/1/f_availability_2/1',
+    selectors: {
+      list: '.products > .product',
+      name: 'a.prodname',
+      url: 'a.prodname',
+      price: '.price'
+    }
+  },
+  {
+    name: 'Komputery dla firm',
+    type: 'komputery-dla-firm',
+    url: 'https://komputerydlafirm.pl/pl/c/Karty-graficzne/148/1/default/1/searchquery/rtx+3080/f_availability_2/1',
     selectors: {
       list: '.products > .product',
       name: 'a.prodname',
