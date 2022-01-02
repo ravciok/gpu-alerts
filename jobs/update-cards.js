@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const Card = require("../DB/Card");
+const sendEmail = require("./send-mail");
 
 const updateCards = async (sourceData) => {
   await Card.deleteMany();
@@ -38,6 +39,12 @@ const updateCards = async (sourceData) => {
       }, shop).catch(() => []);
 
       console.log(`${index + 1}/${sourceData.length} - ${shop.name} - ${!!data.length}`);
+
+      data.forEach(el => {
+        if (el.price <= process.env.ALERT_PRICE) {
+          sendEmail(`${el.price.toLocaleString('pl-PL', {minimumFractionDigits: 2})}zł - ${el.name}`, el.url);
+        }
+      });
 
       await Card.insertMany(data, null, (err, res) => {
         if (err) {
