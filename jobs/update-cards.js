@@ -35,7 +35,7 @@ const updateCards = async (sourceData) => {
             price: completePrice(el.querySelector(shop.selectors.price)),
             createdAt
           }
-        }).filter(el => el.price !== 0);
+        }).filter(el => !!el.price);
       }, shop).catch(() => []);
 
       console.log(`${index + 1}/${sourceData.length} - ${shop.name} - ${!!data.length}`);
