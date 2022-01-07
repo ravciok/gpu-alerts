@@ -141,7 +141,29 @@ const cardsConfig = [
       url: 'a.prodname',
       price: '.price'
     }
-  }
+  },
+  {
+    name: 'TechLord',
+    type: 'tech-lord',
+    url: 'https://techlord.pl/karty-graficzne-c-65_68.html/p116=948/p95=4154/p96=3440',
+    selectors: {
+      list: '.OknaRwd > .Okno.OknoRwd',
+      name: 'h3 > a',
+      url: 'h3 > a',
+      price: '.Cena'
+    }
+  },
+  {
+    name: 'MaxSklep',
+    type: 'max-sklep',
+    url: 'https://maxsklep.pl/44-chipset-nvidia?keywords=&keywords_desc=&prices%5B0%5D=&prices%5B1%5D=&templates%5B108070%5D%5BRTX+3080%5D=RTX+3080',
+    selectors: {
+      list: '.listing-classic > .product-item',
+      name: '.product-name > a',
+      url: '.product-name > a',
+      price: '.view_price > span'
+    }
+  },
 ];
 
 module.exports = cardsConfig;
