@@ -1,6 +1,6 @@
 const https = require('https');
 
-const refreshDomain = async () => {
+const visitSite = async () => {
   https.get(process.env.REFRESH_DOMAIN, (resp) => {
 
     resp.on('data', () => {
@@ -15,4 +15,4 @@ const refreshDomain = async () => {
   });
 }
 
-module.exports = refreshDomain;
+module.exports = visitSite;
