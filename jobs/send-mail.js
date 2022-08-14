@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = (subject, text) => {
   transporter.sendMail({
     from: '"GPU Alerts" <foo@example.com>',
-    to: process.env.ALERT_LIST,
+    to: process.env.ALERT_MAIL,
     subject,
     text,
   });
